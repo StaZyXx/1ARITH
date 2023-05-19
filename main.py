@@ -42,7 +42,8 @@ class Encryption:
             self.__key_value[increment_number] = line
             self.__key_value[increment_number] = line.rstrip("\n")
             increment_number += 1
-        print(self.__key_value)
+        return self.__key_value
+
 
     def create_key(self, word):
         descending_number = len(word)
@@ -56,7 +57,7 @@ class Encryption:
             self.__list.append(random_element)
             list_temp.remove(random_element)
             descending_number -= 1
-        print(self.__list)
+        return self.__list
 
     def verify_list(self):
         for item in self.__list:
@@ -87,9 +88,11 @@ class Encryption:
         for x in range(len(key)):
             i = key[x]
             letter = word[x]
+            temp_list = []
             for j in range(len(self.__key_value[i])):
                 if self.__key_value[i][j] == letter:
-                    result[x][j] = self.__key_value[i][j - 6]
+                    temp_list.append(self.__key_value[i][j - 6])
+            result.append(temp_list)
         return result
 
 
@@ -105,7 +108,7 @@ class Console:
             self.decipher()
 
     def decipher(self):
-        word = input("Donnez le mot a dechiffrer:")
+        word = input("Donnez le mot a dechiffrer:").upper()
         key = input("Donnez la clef de dechiffrement:")
 
         key.replace("[", "")
@@ -113,19 +116,18 @@ class Console:
         key = key.split(",")
         keys = []
         for i in range(len(key)):
-            keys.append(int(key[i]))
+            keys.append(int(key[i].replace("]", "").replace("[", "").replace(" ", "")))
 
         decipher = self.__encryption.decipher(word, keys)
         for i in range(len(decipher)):
             for j in range(len(decipher[i])):
                 print(decipher[i][j], end="")
-            print("")
 
     def encryption(self):
 
         result = input("Donnez un mot a chiffrer:")
         self.__encryption.create_lines(result)
-        self.__encryption.read_lines()
+        print(self.__encryption.read_lines())
         self.__encryption.create_key(result)
         self.__encryption.verify_list()
 
@@ -133,12 +135,11 @@ class Console:
         for i in range(len(encryption)):
             for j in range(len(encryption[i])):
                 print(encryption[i][j], end="")
-            print("")
 
 
-class View(Encryption):
-    def __init__(self):
-        self.__encryption = super().__init__()
+class View:
+    def __init__(self, encryption):
+        self.__encryption = encryption
         self.__root = Tk()
         self.__button1 = Button(text="Encryption", command=self.info_encryption)
         self.__button1.config(width=30, height=5, bg="red")
@@ -174,10 +175,6 @@ class View(Encryption):
         self.__label2.pack()
         self.__entry_key = Entry(self.__root_info, width=50, borderwidth=2)
         self.__entry_key.pack()
-        self.__label3 = Label(text="Mettez ici votre cylindre:")
-        self.__label3.pack()
-        self.__entry_data = Entry(self.__root_info, width=50)
-        self.__entry_data.pack()
         self.__send_button = Button(text="Envoyer les informations", command=self.decipher)
         self.__send_button.pack()
 
@@ -191,31 +188,66 @@ class View(Encryption):
         self.__root_encryption.title("Encryption")
         self.__root_encryption.geometry("500x300")
 
+        key = self.__encryption.create_key(self.__word)
+
+        result = self.__encryption.encryption(self.__word)
+
+        text = Text(self.__root_encryption, width=50, height=10, bg="black", fg="white")
+
+        text.insert(INSERT, "Mot a chiffrer:")
+        text.insert(INSERT, self.__word)
+        text.insert(INSERT, "\n")
+        text.insert(INSERT, "Clef de chiffrement:")
+        text.insert(INSERT, key)
+        text.insert(INSERT, "\nResultat:")
+        text.insert(INSERT, result)
+        text.pack()
+
         self.__root_encryption.mainloop()
 
     def decipher(self):
         self.__word = self.__entry_word.get()
         self.__word = self.__word.upper()
         self.__word = self.__word.replace(" ", "")
-        self.__key = self.__entry_key.get()
-        self.__dict = self.__entry_data.get()
+        self.__key = self.__entry_key.get().upper()
 
-        if len(self.__dict) == 0 or len(self.__dict) % 26 != 0:
-            self.__entry_data.config(bg="red")
-        else:
-            self.__root_info.destroy()
-            self.__root_decipher = Tk()
-            self.__root_decipher.title("Decipher")
-            self.__root_decipher.geometry("500x300")
-            super().decipher(self.__word, self.__key)
+        self.__root_info.destroy()
+        self.__root_decipher = Tk()
+        self.__root_decipher.title("Decipher")
+        self.__root_decipher.geometry("500x300")
 
-            self.__root_decipher.mainloop()
+        self.__key.replace("[", "")
+        self.__key.replace("]", "")
+        key = self.__key.split(",")
+        keys = []
+        for i in range(len(key)):
+            keys.append(int(key[i].replace("]", "").replace("[", "").replace(" ", "")))
+
+        result = self.__encryption.decipher(self.__word,
+                                   keys)
+
+        text = Text(self.__root_decipher, width=50, height=10, wrap=WORD)
+        resultFormatted = ""
+        for i in range(len(result)):
+            for j in range(len(result[i])):
+                resultFormatted += result[i][j]
+
+        text.insert(1.0, "Mot a déchiffrer:")
+        text.insert(1.0, self.__word)
+        text.insert(1.0, "Clé de déchiffrement:")
+        text.insert(1.0, self.__key)
+        text.insert(1.0, "Resultat:")
+        text.insert(1.0, "Le mot déchiffré est : " + str(resultFormatted))
+
+        text.pack()
+
+        self.__root_decipher.mainloop()
 
 
 encryption = Encryption()
 
 encryption.read_lines()
 
-affichage = Console(encryption)
+# affichage = Console(encryption)
 
-# View()
+View(encryption)
