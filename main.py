@@ -205,14 +205,15 @@ class View:
             for j in range(len(self.__encryption.get_key_value()[i + 1])):
                 Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j], background="red").grid(column=i,
                                                                                                               row=j)
-            btn = Button(self.__canvas, text=i, command=lambda: self.switch_keys(btn)).grid(column=i, row=27)
+            btn = Button(self.__canvas, text=i)
+            btn.config(command=lambda a=btn: self.switch_keys(a))
+            btn.grid(column=i, row=27)
 
         self.__root_encryption.mainloop()
 
     def switch_keys(self, btn):
-        print(btn)
-        btn["state"] = "disabled"
-
+        btn.config(state='disabled')
+        print(btn["text"])
 
     def decipher(self):
         self.__word = self.__entry_word.get()
