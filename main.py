@@ -18,9 +18,6 @@ class Encryption:
         self.__key_value = key_value
 
     def create_lines(self, word):
-        pass
-
-    def create_lines(self, word):
         self.__file = open("data.txt", "w")
         for i in range(len(word)):
             descending_number = 26
@@ -127,9 +124,8 @@ class Console:
 
         result = input("Donnez un mot a chiffrer:")
         self.__encryption.create_lines(result)
-        print(self.__encryption.read_lines())
+        self.__encryption.read_lines()
         self.__encryption.create_key(result)
-        self.__encryption.verify_list()
 
         encryption = self.__encryption.encryption(result.upper())
         for i in range(len(encryption)):
@@ -188,20 +184,13 @@ class View:
         self.__root_encryption.title("Encryption")
         self.__root_encryption.geometry("500x300")
 
+        self.__encryption.create_lines(self.__word)
+
+        self.__encryption.read_lines()
+
         key = self.__encryption.create_key(self.__word)
 
         result = self.__encryption.encryption(self.__word)
-
-        text = Text(self.__root_encryption, width=50, height=10, bg="black", fg="white")
-
-        text.insert(INSERT, "Mot a chiffrer:")
-        text.insert(INSERT, self.__word)
-        text.insert(INSERT, "\n")
-        text.insert(INSERT, "Clef de chiffrement:")
-        text.insert(INSERT, key)
-        text.insert(INSERT, "\nResultat:")
-        text.insert(INSERT, result)
-        text.pack()
 
         self.__root_encryption.mainloop()
 
