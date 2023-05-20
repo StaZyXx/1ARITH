@@ -32,7 +32,7 @@ class Encryption:
                 self.__file.write(self.__dictio[random_number])
                 del self.__dictio[random_number]
                 descending_number -= 1
-            result[i +1] = text
+            result[i + 1] = text
             self.__file.write("\n")
         self.__file.close()
         return result
@@ -189,10 +189,10 @@ class View:
         self.__root_encryption.title("Encryption")
         self.__root_encryption.geometry("1800x900")
 
-        Label(text="Mot a chiffrer:" + self.__word).grid(row=0)
+        Label(text="Mot a chiffrer:" + self.__word).grid(column=0)
 
         self.__canvas = Canvas(self.__root_encryption, width=1000, height=900, bg="red")
-        self.__canvas.grid(row=1)
+        self.__canvas.grid(column=1)
 
         lines = self.__encryption.create_lines(self.__word)
 
@@ -203,9 +203,16 @@ class View:
 
         for i in range(len(self.__encryption.get_key_value())):
             for j in range(len(self.__encryption.get_key_value()[i + 1])):
-                Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j]).grid(row=i, column=j)
+                Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j], background="red").grid(column=i,
+                                                                                                              row=j)
+            btn = Button(self.__canvas, text=i, command=lambda: self.switch_keys(btn)).grid(column=i, row=27)
 
         self.__root_encryption.mainloop()
+
+    def switch_keys(self, btn):
+        print(btn)
+        btn["state"] = "disabled"
+
 
     def decipher(self):
         self.__word = self.__entry_word.get()
@@ -225,8 +232,7 @@ class View:
         for i in range(len(key)):
             keys.append(int(key[i].replace("]", "").replace("[", "").replace(" ", "")))
 
-        result = self.__encryption.decipher(self.__word,
-                                            keys)
+        result = self.__encryption.decipher(self.__word, keys)
 
         text = Text(self.__root_decipher, width=50, height=10, wrap=WORD)
         resultFormatted = ""
