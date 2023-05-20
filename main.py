@@ -20,18 +20,22 @@ class Encryption:
 
     def create_lines(self, word):
         self.__file = open("data.txt", "w")
+        result = {}
         for i in range(len(word)):
             descending_number = 26
             self.__dictio = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
                              'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+            text = ""
             for j in range(len(self.__dictio)):
                 random_number = random.randrange(0, descending_number, 1)
+                text += self.__dictio[random_number]
                 self.__file.write(self.__dictio[random_number])
                 del self.__dictio[random_number]
                 descending_number -= 1
+            result[i +1] = text
             self.__file.write("\n")
         self.__file.close()
-
+        return result
 
     def read_lines(self):
         file = open("data.txt", "r")
@@ -42,7 +46,6 @@ class Encryption:
             self.__key_value[increment_number] = line.rstrip("\n")
             increment_number += 1
         return self.__key_value
-
 
     def create_key(self, word):
         descending_number = len(word)
@@ -125,8 +128,8 @@ class Console:
     def encryption(self):
 
         result = input("Donnez un mot a chiffrer:")
-        self.__encryption.create_lines(result)
-        self.__encryption.read_lines()
+        lines = self.__encryption.create_lines(result)
+        self.__encryption.set_key_value(lines)
         self.__encryption.create_key(result)
 
         encryption = self.__encryption.encryption(result.upper())
@@ -191,18 +194,16 @@ class View:
         self.__canvas = Canvas(self.__root_encryption, width=1000, height=900, bg="red")
         self.__canvas.grid(row=1)
 
-        self.__encryption.create_lines(self.__word)
+        lines = self.__encryption.create_lines(self.__word)
 
-        self.__encryption.read_lines()
-
+        self.__encryption.set_key_value(lines)
         key = self.__encryption.create_key(self.__word)
 
         result = self.__encryption.encryption(self.__word)
 
         for i in range(len(self.__encryption.get_key_value())):
-            for j in range(len(self.__encryption.get_key_value()[i+1])):
-                Label(self.__canvas, text=self.__encryption.get_key_value()[i+1][j]).grid(row=i, column=j)
-
+            for j in range(len(self.__encryption.get_key_value()[i + 1])):
+                Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j]).grid(row=i, column=j)
 
         self.__root_encryption.mainloop()
 
@@ -225,7 +226,7 @@ class View:
             keys.append(int(key[i].replace("]", "").replace("[", "").replace(" ", "")))
 
         result = self.__encryption.decipher(self.__word,
-                                   keys)
+                                            keys)
 
         text = Text(self.__root_decipher, width=50, height=10, wrap=WORD)
         resultFormatted = ""
