@@ -1,4 +1,5 @@
 import random
+import time
 from tkinter import *
 
 
@@ -30,6 +31,7 @@ class Encryption:
                 descending_number -= 1
             self.__file.write("\n")
         self.__file.close()
+
 
     def read_lines(self):
         file = open("data.txt", "r")
@@ -182,7 +184,12 @@ class View:
         self.__root_info.destroy()
         self.__root_encryption = Tk()
         self.__root_encryption.title("Encryption")
-        self.__root_encryption.geometry("500x300")
+        self.__root_encryption.geometry("1800x900")
+
+        Label(text="Mot a chiffrer:" + self.__word).grid(row=0)
+
+        self.__canvas = Canvas(self.__root_encryption, width=1000, height=900, bg="red")
+        self.__canvas.grid(row=1)
 
         self.__encryption.create_lines(self.__word)
 
@@ -191,6 +198,11 @@ class View:
         key = self.__encryption.create_key(self.__word)
 
         result = self.__encryption.encryption(self.__word)
+
+        for i in range(len(self.__encryption.get_key_value())):
+            for j in range(len(self.__encryption.get_key_value()[i+1])):
+                Label(self.__canvas, text=self.__encryption.get_key_value()[i+1][j]).grid(row=i, column=j)
+
 
         self.__root_encryption.mainloop()
 
