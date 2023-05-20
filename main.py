@@ -1,5 +1,4 @@
 import random
-import time
 from tkinter import *
 
 
@@ -17,6 +16,7 @@ class Encryption:
 
     def set_key_value(self, key_value):
         self.__key_value = key_value
+
     def get_list(self):
         return self.__list
 
@@ -201,8 +201,7 @@ class View:
         self.__encryption.set_key_value(lines)
 
         result = self.__encryption.encryption(self.__word)
-        self.update_encryption()
-
+        self.update_encryption_with_button()
 
         self.__root_encryption.mainloop()
 
@@ -211,19 +210,72 @@ class View:
         print(btn["text"])
         self.__encryption.get_list().append(btn["text"])
         if len(self.__encryption.get_list()) == len(self.__encryption.get_key_value()):
-    def update_encryption_with_buttons(self):
+            self.init_last_page()
+
+    def init_last_page(self):
+        self.__root_encryption.destroy()
+        self.__root_last_page = Tk()
+        self.__root_last_page.title("Last Page")
+        self.__root_last_page.geometry("1800x900")
+
+        Label(text="Mot a chiffrer:" + self.__word).grid(column=0)
+
+        self.__canvas = Canvas(self.__root_last_page, width=1000, height=900, bg="red")
+        self.__canvas.grid(column=1)
+
+        for i in range(len(self.__encryption.get_key_value())):
+            arrow_up = Button(self.__canvas, text="⬆")
+            arrow_up.config(command=lambda a=i: self.pop_key_value(a + 1))
+            arrow_up.grid(column=i, row=27)
+            arrow_down = Button(self.__canvas, text="⬇")
+            arrow_down.config(command=lambda a=i: self.remove_key_value(a + 1))
+            arrow_down.grid(column=i, row=28)
+
+        self.update_encryption()
+
+        self.__root_last_page.mainloop()
+
+    def update_encryption_with_button(self):
         for i in range(len(self.__encryption.get_key_value())):
             for j in range(len(self.__encryption.get_key_value()[i + 1])):
                 Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j], background="red").grid(column=i,
                                                                                                               row=j)
-    def update_encryption(self):
-        for i in range(len(self.__encryption.get_key_value())):
-            for j in range(len(self.__encryption.get_key_value()[i + 1])):
-                Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j], background="red").grid(column=i,
-                                                                                                              row=j)
-            btn = Button(self.__canvas, text=i+1)
+            btn = Button(self.__canvas, text=i + 1)
             btn.config(command=lambda a=btn: self.switch_keys(a))
             btn.grid(column=i, row=27)
+
+    def update_encryption(self):
+        if len(self.__encryption.get_list()) == len(self.__encryption.get_key_value()):
+            for i in range(len(self.__encryption.get_list())):
+                a = int(self.__encryption.get_list()[i])
+                for j in range(len(self.__encryption.get_key_value()[a])):
+                    Label(self.__canvas, text=self.__encryption.get_key_value()[a][j], background="red").grid(
+                        column=i,
+                        row=j)
+        else:
+            for i in range(len(self.__encryption.get_key_value())):
+                for j in range(len(self.__encryption.get_key_value()[i + 1])):
+                    Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j], background="red").grid(
+                        column=i,
+                        row=j)
+
+    def pop_key_value(self, index):
+        result = self.__encryption.get_key_value()[index]
+
+        t = result[0]
+        self.__encryption.get_key_value()[index] = result[1:]
+        self.__encryption.get_key_value()[index] += t
+
+        self.update_encryption()
+
+    def remove_key_value(self, index):
+        result = self.__encryption.get_key_value()[index]
+
+        t = result[len(result) - 1]
+        self.__encryption.get_key_value()[index] = result[:len(result) - 1]
+        self.__encryption.get_key_value()[index] = t + self.__encryption.get_key_value()[index]
+
+        self.update_encryption()
 
     def decipher(self):
         self.__word = self.__entry_word.get()
