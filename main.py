@@ -17,6 +17,8 @@ class Encryption:
 
     def set_key_value(self, key_value):
         self.__key_value = key_value
+    def get_list(self):
+        return self.__list
 
     def create_lines(self, word):
         self.__file = open("data.txt", "w")
@@ -197,23 +199,31 @@ class View:
         lines = self.__encryption.create_lines(self.__word)
 
         self.__encryption.set_key_value(lines)
-        key = self.__encryption.create_key(self.__word)
 
         result = self.__encryption.encryption(self.__word)
+        self.update_encryption()
 
-        for i in range(len(self.__encryption.get_key_value())):
-            for j in range(len(self.__encryption.get_key_value()[i + 1])):
-                Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j], background="red").grid(column=i,
-                                                                                                              row=j)
-            btn = Button(self.__canvas, text=i)
-            btn.config(command=lambda a=btn: self.switch_keys(a))
-            btn.grid(column=i, row=27)
 
         self.__root_encryption.mainloop()
 
     def switch_keys(self, btn):
         btn.config(state='disabled')
         print(btn["text"])
+        self.__encryption.get_list().append(btn["text"])
+        if len(self.__encryption.get_list()) == len(self.__encryption.get_key_value()):
+    def update_encryption_with_buttons(self):
+        for i in range(len(self.__encryption.get_key_value())):
+            for j in range(len(self.__encryption.get_key_value()[i + 1])):
+                Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j], background="red").grid(column=i,
+                                                                                                              row=j)
+    def update_encryption(self):
+        for i in range(len(self.__encryption.get_key_value())):
+            for j in range(len(self.__encryption.get_key_value()[i + 1])):
+                Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j], background="red").grid(column=i,
+                                                                                                              row=j)
+            btn = Button(self.__canvas, text=i+1)
+            btn.config(command=lambda a=btn: self.switch_keys(a))
+            btn.grid(column=i, row=27)
 
     def decipher(self):
         self.__word = self.__entry_word.get()
