@@ -143,43 +143,18 @@ class Console:
 class View:
     def __init__(self, encryption):
         self.__encryption = encryption
-        self.__root = Tk()
-        self.__button1 = Button(text="Encryption", command=self.info_encryption)
-        self.__button1.config(width=30, height=5, bg="red")
-        self.__button1.pack()
-        self.__button2 = Button(text="Decipher", command=self.info_decipher)
-        self.__button2.config(width=30, height=5, bg="blue")
-        self.__button2.pack()
-
-        self.__root.mainloop()
-
-    def info_encryption(self):
-        self.__root.destroy()
         self.__root_info = Tk()
         self.__root_info.title("Page des infos")
         self.__root_info.geometry("500x300")
-        self.__label = Label(text="Entrez le mot a chiffrer:")
-        self.__label.pack()
-        self.__entry_word = Entry(self.__root_info, width=50, borderwidth=2)
-        self.__entry_word.pack()
-        self.__send_button = Button(text="Envoyer les informations", command=self.encryption)
+        self.__root_info.configure(bg="black")
+        self.__label = Label(text="Mot à chiffrer/déchiffrer :", fg="red", bg="black")
+        self.__label.pack(pady=10)
+        self.__entry_word = Entry(self.__root_info, fg="red", bg="black")
+        self.__entry_word.pack(pady=10)
+        self.__send_button = Button(text="Valider", fg="red", bg="black", command=self.encryption)
         self.__send_button.pack()
 
-    def info_decipher(self):
-        self.__root.destroy()
-        self.__root_info = Tk()
-        self.__root_info.title("Page des infos")
-        self.__root_info.geometry("500x300")
-        self.__label1 = Label(text="Entrez le mot a déchiffrer:")
-        self.__label1.pack()
-        self.__entry_word = Entry(self.__root_info, width=50, borderwidth=2)
-        self.__entry_word.pack()
-        self.__label2 = Label(text="Entrez la clé de déchiffrement:")
-        self.__label2.pack()
-        self.__entry_key = Entry(self.__root_info, width=50, borderwidth=2)
-        self.__entry_key.pack()
-        self.__send_button = Button(text="Envoyer les informations", command=self.decipher)
-        self.__send_button.pack()
+        self.__root_info.mainloop()
 
     def encryption(self):
         self.__word = self.__entry_word.get()
@@ -189,25 +164,22 @@ class View:
         self.__root_info.destroy()
         self.__root_encryption = Tk()
         self.__root_encryption.title("Encryption")
-        self.__root_encryption.geometry("1800x900")
+        self.__root_encryption.geometry("700x900")
+        self.__root_encryption.configure(bg="black")
 
-        Label(text="Mot a chiffrer:" + self.__word).grid(column=0)
-
-        self.__canvas = Canvas(self.__root_encryption, width=1000, height=900, bg="red")
-        self.__canvas.grid(column=1)
+        self.__frame = Frame(self.__root_encryption, width=1000, height=900, bg="black")
+        self.__frame.pack(anchor="center")
 
         lines = self.__encryption.create_lines(self.__word)
 
         self.__encryption.set_key_value(lines)
 
-        result = self.__encryption.encryption(self.__word)
         self.update_encryption_with_button()
 
         self.__root_encryption.mainloop()
 
     def switch_keys(self, btn):
         btn.config(state='disabled')
-        print(btn["text"])
         self.__encryption.get_list().append(btn["text"])
         if len(self.__encryption.get_list()) == len(self.__encryption.get_key_value()):
             self.init_last_page()
@@ -216,20 +188,25 @@ class View:
         self.__root_encryption.destroy()
         self.__root_last_page = Tk()
         self.__root_last_page.title("Last Page")
-        self.__root_last_page.geometry("1800x900")
+        self.__root_last_page.geometry("700x900")
+        self.__root_last_page.configure(bg="black")
 
-        Label(text="Mot a chiffrer:" + self.__word).grid(column=0)
-
-        self.__canvas = Canvas(self.__root_last_page, width=1000, height=900, bg="red")
-        self.__canvas.grid(column=1)
+        self.__frame = Frame(self.__root_last_page, width=1000, height=900, bg="black")
+        self.__frame.pack(anchor="center")
 
         for i in range(len(self.__encryption.get_key_value())):
-            arrow_up = Button(self.__canvas, text="⬆")
+            arrow_up = Button(self.__frame, text="⬆", fg="red", bg="black")
             arrow_up.config(command=lambda a=i: self.pop_key_value(a + 1))
             arrow_up.grid(column=i, row=27)
-            arrow_down = Button(self.__canvas, text="⬇")
+            arrow_down = Button(self.__frame, text="⬇", fg="red", bg="black")
             arrow_down.config(command=lambda a=i: self.remove_key_value(a + 1))
             arrow_down.grid(column=i, row=28)
+
+        clearText = Label(self.__frame, text="⬅ Clear", fg="red", bg="black")
+        clearText.grid(column=len(self.__encryption.get_key_value()), row=10)
+
+        cipherText = Label(self.__frame, text="⬅ Cipher", fg="red", bg="black")
+        cipherText.grid(column=len(self.__encryption.get_key_value()), row=16)
 
         self.update_encryption()
 
@@ -238,10 +215,11 @@ class View:
     def update_encryption_with_button(self):
         for i in range(len(self.__encryption.get_key_value())):
             for j in range(len(self.__encryption.get_key_value()[i + 1])):
-                Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j], background="red").grid(column=i,
-                                                                                                              row=j)
-            btn = Button(self.__canvas, text=i + 1)
-            btn.config(command=lambda a=btn: self.switch_keys(a))
+                Label(self.__frame, text=self.__encryption.get_key_value()[i + 1][j], background="black",
+                      fg="red").grid(column=i,
+                                     row=j)
+            btn = Button(self.__frame, text=i + 1)
+            btn.config(fg="red", bg="black", command=lambda a=btn: self.switch_keys(a))
             btn.grid(column=i, row=27)
 
     def update_encryption(self):
@@ -249,13 +227,15 @@ class View:
             for i in range(len(self.__encryption.get_list())):
                 a = int(self.__encryption.get_list()[i])
                 for j in range(len(self.__encryption.get_key_value()[a])):
-                    Label(self.__canvas, text=self.__encryption.get_key_value()[a][j], background="red").grid(
+                    Label(self.__frame, text=self.__encryption.get_key_value()[a][j], background="black",
+                          fg="red").grid(
                         column=i,
                         row=j)
         else:
             for i in range(len(self.__encryption.get_key_value())):
                 for j in range(len(self.__encryption.get_key_value()[i + 1])):
-                    Label(self.__canvas, text=self.__encryption.get_key_value()[i + 1][j], background="red").grid(
+                    Label(self.__frame, text=self.__encryption.get_key_value()[i + 1][j], background="black",
+                          fg="red").grid(
                         column=i,
                         row=j)
 
@@ -276,43 +256,6 @@ class View:
         self.__encryption.get_key_value()[index] = t + self.__encryption.get_key_value()[index]
 
         self.update_encryption()
-
-    def decipher(self):
-        self.__word = self.__entry_word.get()
-        self.__word = self.__word.upper()
-        self.__word = self.__word.replace(" ", "")
-        self.__key = self.__entry_key.get().upper()
-
-        self.__root_info.destroy()
-        self.__root_decipher = Tk()
-        self.__root_decipher.title("Decipher")
-        self.__root_decipher.geometry("500x300")
-
-        self.__key.replace("[", "")
-        self.__key.replace("]", "")
-        key = self.__key.split(",")
-        keys = []
-        for i in range(len(key)):
-            keys.append(int(key[i].replace("]", "").replace("[", "").replace(" ", "")))
-
-        result = self.__encryption.decipher(self.__word, keys)
-
-        text = Text(self.__root_decipher, width=50, height=10, wrap=WORD)
-        resultFormatted = ""
-        for i in range(len(result)):
-            for j in range(len(result[i])):
-                resultFormatted += result[i][j]
-
-        text.insert(1.0, "Mot a déchiffrer:")
-        text.insert(1.0, self.__word)
-        text.insert(1.0, "Clé de déchiffrement:")
-        text.insert(1.0, self.__key)
-        text.insert(1.0, "Resultat:")
-        text.insert(1.0, "Le mot déchiffré est : " + str(resultFormatted))
-
-        text.pack()
-
-        self.__root_decipher.mainloop()
 
 
 encryption = Encryption()
