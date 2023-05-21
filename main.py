@@ -143,6 +143,20 @@ class Console:
 class View:
     def __init__(self, encryption):
         self.__encryption = encryption
+        self.init_main_page()
+
+    def init_main_page(self):
+        self.__main_page = Tk()
+        self.__main_page.title("Chiffrage | Déchiffrage")
+        self.__main_page.geometry("500x300")
+        self.__main_page.config(bg="black")
+        Button(self.__main_page, text="Chiffrer", command=lambda: self.init_encryption_page(False), width=20, height=5, background="black", fg="red").pack(pady=20)
+        Button(self.__main_page, text="Déchiffrer", command=lambda: self.init_encryption_page(True),width=20, height=5, background="black", fg="red").pack(pady=10)
+        self.__main_page.mainloop()
+
+
+    def init_encryption_page(self, bool):
+        self.__main_page.destroy()
         self.__root_info = Tk()
         self.__root_info.title("Page des infos")
         self.__root_info.geometry("500x300")
@@ -151,12 +165,12 @@ class View:
         self.__label.pack(pady=10)
         self.__entry_word = Entry(self.__root_info, fg="red", bg="black")
         self.__entry_word.pack(pady=10)
-        self.__send_button = Button(text="Valider", fg="red", bg="black", command=self.encryption)
+        self.__send_button = Button(text="Valider", fg="red", bg="black", command=lambda: self.encryption(bool))
         self.__send_button.pack()
 
         self.__root_info.mainloop()
 
-    def encryption(self):
+    def encryption(self, bool):
         self.__word = self.__entry_word.get()
         self.__word = self.__word.upper()
         self.__word = self.__word.replace(" ", "")
@@ -169,18 +183,22 @@ class View:
 
         self.__frame = Frame(self.__root_encryption, width=1000, height=900, bg="black")
         self.__frame.pack(anchor="center")
-
-        lines = self.__encryption.create_lines(self.__word)
-
-        self.__encryption.set_key_value(lines)
+        if bool:
+            self.__encryption.read_lines()
+        else:
+            lines = self.__encryption.create_lines(self.__word)
+            self.__encryption.set_key_value(lines)
 
         self.update_encryption_with_button()
 
         self.__root_encryption.mainloop()
 
+
+
     def switch_keys(self, btn):
         btn.config(state='disabled')
         self.__encryption.get_list().append(btn["text"])
+
         if len(self.__encryption.get_list()) == len(self.__encryption.get_key_value()):
             self.init_last_page()
 
@@ -196,10 +214,10 @@ class View:
 
         for i in range(len(self.__encryption.get_key_value())):
             arrow_up = Button(self.__frame, text="⬆", fg="red", bg="black")
-            arrow_up.config(command=lambda a=i: self.pop_key_value(a + 1))
+            arrow_up.config(command=lambda a=self.__encryption.get_list()[i]: self.pop_key_value(a))
             arrow_up.grid(column=i, row=27)
             arrow_down = Button(self.__frame, text="⬇", fg="red", bg="black")
-            arrow_down.config(command=lambda a=i: self.remove_key_value(a + 1))
+            arrow_down.config(command=lambda a=self.__encryption.get_list()[i]: self.remove_key_value(a))
             arrow_down.grid(column=i, row=28)
 
         clearText = Label(self.__frame, text="⬅ Clear", fg="red", bg="black")
