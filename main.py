@@ -104,11 +104,11 @@ class Console:
 
     def __init__(self, encryption):
         self.__encryption = encryption
-        self.__response = input("Voulez vous chiffrez ou dechiffrez un mot ?")
+        self.__response = input("Voulez vous chiffrer ou dechiffrer un mot ?")
 
-        if self.__response.lower() == "chiffrez":
+        if self.__response.lower() == "chiffrer":
             self.encryption()
-        elif self.__response.lower() == "dechiffrez":
+        elif self.__response.lower() == "dechiffrer":
             self.decipher()
 
     def decipher(self):
@@ -132,12 +132,14 @@ class Console:
         result = input("Donnez un mot a chiffrer:")
         lines = self.__encryption.create_lines(result)
         self.__encryption.set_key_value(lines)
-        self.__encryption.create_key(result)
+        key = self.__encryption.create_key(result)
 
         encryption = self.__encryption.encryption(result.upper())
         for i in range(len(encryption)):
             for j in range(len(encryption[i])):
                 print(encryption[i][j], end="")
+        print("\n", key, end="")
+
 
 
 class View:
@@ -278,8 +280,6 @@ class View:
 
 encryption = Encryption()
 
-encryption.read_lines()
-
-# affichage = Console(encryption)
+#Console(encryption)
 
 View(encryption)
